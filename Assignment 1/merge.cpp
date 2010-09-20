@@ -108,26 +108,13 @@ int main() {
 			try {
 				cur->next = new Node(val, NULL, cur);
 			} catch (bad_alloc& e) {  // I think I did this right...
-				cerr << "KABOOM! Ran out of memory; exiting." << endl;
-				cerr << e.what() << endl;
+				cerr << "KABOOM! Ran out of memory; exiting." << endl << e.what();
 				exit(1);
 			}
 			cur = cur->next;
 		}
 	}
-	/*
-	int arr[] = { 41, 26, 57, 98, 69, 93, 56, 61, 71, 95, 24, 72, 67, 51, 86, 75, 22, 87, 85, 77, 44, 13, 52, 28, 73 };
-	for(int i=0; i<25; ++i) {
-		val = arr[i];
-		if(values == NULL) {
-			values = new Node(val, NULL, NULL);
-			cur = values;
-		} else {
-			cur->next = new Node(val, NULL, cur);
-			cur = cur->next;
-		}
-	}
-	*/
+	
 	mergeSort(values, cur);
 	
 	printList(values);
