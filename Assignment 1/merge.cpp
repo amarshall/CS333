@@ -6,6 +6,7 @@
  * WARNING: This code contains some mild black magic.
  */
 
+#include <cstdlib>
 #include <iostream>
 #include "Node.h"
 
@@ -133,3 +134,4 @@ int main() {
 	
 	return 0;
 }
+
