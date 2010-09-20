@@ -114,11 +114,11 @@ int main() {
 			cur = cur->next;
 		}
 	}
-	
-	mergeSort(values, cur);
-	
-	printList(values);
-	
+	if(values != NULL) {
+		mergeSort(values, cur);
+		
+		printList(values);
+	}
 	return 0;
 }
 
