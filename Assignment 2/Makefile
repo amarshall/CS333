@@ -17,6 +17,9 @@ MaxHeap.o: MaxHeap.cpp MaxHeap.h
 Email.o: Email.cpp Email.h
 	$(GXX) -c Email.cpp
 
+main.o: main.cpp
+	$(GXX) -c main.cpp
+
 
 clean:
 	rm -f *.o ~* core multi_heap
