@@ -7,7 +7,7 @@ class Email {
       std::string subject;
       std::string sender;
       std::string recipient;
-      std::string body[];
+      std::string* body;
       int lineCount;
       Email();
 };
