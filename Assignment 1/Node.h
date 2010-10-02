@@ -13,13 +13,13 @@ class Node {
  	public:
 		int data;
 		Node* next;
-      Node* prev;
+		Node* prev;
 	
 	public:
 		Node();
 		Node(int dataIn, Node* nextIn, Node* prevIn);
 		Node *getNext();
-      Node *getPrev();
+		Node *getPrev();
 		void setNext(Node* nextIn);
 		void setPrev(Node* prevIn);
 		int getData();
