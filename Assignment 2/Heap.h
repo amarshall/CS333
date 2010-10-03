@@ -1,8 +1,11 @@
-class MaxHeap {
+class Heap {
    private:
       int size;
+      int heapSize;
       int* heap;
+      void buildHeap();
+      void heapify(int i);
    public:
-      MaxHeap(int* arr, int s);
-      void heapify();
+      Heap(int* arr, int s);
+      void heapSort();
 };

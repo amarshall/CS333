@@ -12,7 +12,7 @@ multi_heap: main.o Heap.o Email.o
 	$(GXX) main.o Heap.o Email.o -o multi_heap
 
 Heap.o: Heap.cpp Heap.h
-	$(GXX) -c MaxHeap.cpp
+	$(GXX) -c Heap.cpp
 
 Email.o: Email.cpp Email.h
 	$(GXX) -c Email.cpp

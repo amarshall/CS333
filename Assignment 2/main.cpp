@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "Email.h"
-#include "MaxHeap.h"
+#include "Heap.h"
 
 using namespace std;
 
