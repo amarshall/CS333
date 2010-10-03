@@ -8,10 +8,10 @@ GXX=g++ -Wall -g
 
 all: multi_heap
 
-multi_heap: main.o MaxHeap.o Email.o
-	$(GXX) main.o MaxHeap.o Email.o -o multi_heap
+multi_heap: main.o Heap.o Email.o
+	$(GXX) main.o Heap.o Email.o -o multi_heap
 
-MaxHeap.o: MaxHeap.cpp MaxHeap.h
+Heap.o: Heap.cpp Heap.h
 	$(GXX) -c MaxHeap.cpp
 
 Email.o: Email.cpp Email.h
