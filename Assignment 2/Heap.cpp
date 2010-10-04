@@ -1,4 +1,5 @@
 #include "Heap.h"
+#include <iostream>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ void Heap::heapSort() {
 
 void Heap::buildHeap() {
   heapSize = size;
-  for(int i=size/2-1; i>=0; --i) {
+  for(int i=(size-1)/2; i>=0; --i) {
     heapify(i);
   }
 }
@@ -32,8 +33,8 @@ void Heap::heapify(int i) {
   int largest;
   int left = 2*i + 1;
   int right = 2*i + 2;
-  largest = (left <= heapSize && heap[left] > heap[i]) ? left : i;
-  if(right <= heapSize && heap[right] > heap[largest]) {
+  largest = (left <= heapSize-1 && heap[left] > heap[i]) ? left : i;
+  if(right <= heapSize-1 && heap[right] > heap[largest]) {
     largest = right;
   }
   if(largest != i) {
@@ -41,5 +42,15 @@ void Heap::heapify(int i) {
     heap[i] = heap[largest];
     heap[largest] = tmp;
     heapify(largest);
+  }
+}
+
+int* Heap::getHeap() {
+  return heap;
+}
+
+void Heap::printHeap() {
+  for(int i=0; i<size; ++i) {
+    cout << heap[i] << endl;
   }
 }

@@ -8,11 +8,12 @@ using namespace std;
 int main(int argc, const char* argv[]) {
   ifstream input (argv[1]);
   Email* emails;
+  int count;
   
   if(input.is_open()) {
     string line;
     getline(input, line);
-    int count = atoi(line.c_str());
+    count = atoi(line.c_str());
     emails = new Email[count];
     for(int i=0; i<count && !input.eof(); ++i) {
       // Skip over "blank" lines
@@ -52,9 +53,16 @@ int main(int argc, const char* argv[]) {
       }
       cur.body = body;
       
+      input.close();
+      
       emails[i] = cur;
     }
   }
+  
+  int* a = new int[count];
+  for(int i=0; i<count; ++i) { a[i] = i; }
+  Heap h = Heap(a, count);
+  h.buildHeap();
   
   delete[] emails;
   return 0;
