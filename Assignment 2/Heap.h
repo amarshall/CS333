@@ -5,7 +5,7 @@ class Heap {
 		int* heap;
 		const Email* emails;
 		void heapify(int i);
-		virtual bool compare(const void* first, const void* second, const Email* emails) const;
+		virtual bool compare(const void* first, const void* second) const;
 	public:
 		Heap(int* arr, int s, const Email* e);
 		void heapSort();
@@ -16,7 +16,7 @@ class Heap {
 
 class DateHeap : public Heap {
 	private:
-		bool compare(const int* first, const int* second, const Email* emails) const {
+		bool compare(const int* first, const int* second) const {
 			return emails[*first].timestamp > emails[*second].timestamp;
 		}
 	public:

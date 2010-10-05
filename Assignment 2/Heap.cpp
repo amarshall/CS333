@@ -35,8 +35,8 @@ void Heap::heapify(int i) {
 	int largest;
 	int left = 2*i + 1;
 	int right = 2*i + 2;
-	largest = (left <= heapSize-1 && heap[left] > heap[i]) ? left : i;
-	if(right <= heapSize-1 && heap[right] > heap[largest]) {
+	largest = (left <= heapSize-1 && this->compare(&left, &i)) ? left : i;
+	if(right <= heapSize-1 && compare(&right, &largest)) {
 		largest = right;
 	}
 	if(largest != i) {
@@ -58,6 +58,6 @@ void Heap::printHeap() {
 }
 
 /* Please overload me */
-bool Heap::compare(const void* first, const void* second, const Email* emails) const {
+bool Heap::compare(const void* first, const void* second) const {
 	return true;
 }
