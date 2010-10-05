@@ -4,8 +4,9 @@
 
 using namespace std;
 
-Heap::Heap(int* arr, int s) {
+Heap::Heap(int* arr, int s, const Email* e) {
 	size = s;
+	emails = e;
 	heap = new int[size];
 	for(int i=0; i<size; ++i) {
 		heap[i] = arr[i];

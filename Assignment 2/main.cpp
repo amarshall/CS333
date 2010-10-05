@@ -73,7 +73,7 @@ int main(int argc, const char* argv[]) {
   
   int* a = new int[count];
   for(int i=0; i<count; ++i) { a[i] = i; }
-  Heap dh = DateHeap(a, count);
+  Heap dh = DateHeap(a, count, emails);
   dh.buildHeap();
   
   delete[] emails;

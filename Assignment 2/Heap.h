@@ -3,11 +3,11 @@ class Heap {
 		int size;
 		int heapSize;
 		int* heap;
-		const int* emails;
+		const Email* emails;
 		void heapify(int i);
 		virtual bool compare(const void* first, const void* second, const Email* emails) const;
 	public:
-		Heap(int* arr, int s);
+		Heap(int* arr, int s, const Email* e);
 		void heapSort();
 		void printHeap();
 		void buildHeap();
@@ -20,5 +20,5 @@ class DateHeap : public Heap {
 			return emails[*first].timestamp > emails[*second].timestamp;
 		}
 	public:
-		DateHeap(int* arr, int s) : Heap(arr, s) {};
+		DateHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {};
 };
