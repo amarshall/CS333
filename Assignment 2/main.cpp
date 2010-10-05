@@ -86,20 +86,32 @@ int main(int argc, const char* argv[]) {
 			if(argument == "oldest") {
 				dh->heapSort();
 				cout << *dh;
+				dh->buildHeap();
 			} else if(argument == "alphabetical") {
 				sh->heapSort();
 				cout << *sh;
+				sh->buildHeap();
 			} else if(argument == "longest") {
 				lh->heapSort();
 				cout << *lh;
+				lh->buildHeap();
 			}
 		} else if(command == "extract") {
 			if(argument == "oldest") {
 				cout << emails[dh->getHeap()[0]];
+				int* h = dh->popTop();
+				sh->buildHeap(h);
+				lh->buildHeap(h);
 			} else if(argument == "alphabetical") {
 				cout << emails[sh->getHeap()[0]];
+				int* h = sh->popTop();
+				dh->buildHeap(h);
+				lh->buildHeap(h);
 			} else if(argument == "longest") {
 				cout << emails[lh->getHeap()[0]];
+				int* h = lh->popTop();
+				dh->buildHeap(h);
+				sh->buildHeap(h);
 			}
 		} else if(command == "report") {
 			if(argument == "oldest") {

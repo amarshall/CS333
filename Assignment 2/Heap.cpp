@@ -8,9 +8,7 @@ Heap::Heap(int* arr, int s, const Email* e) {
 	size = s;
 	emails = e;
 	heap = new int[size];
-	for(int i=0; i<size; ++i) {
-		heap[i] = arr[i];
-	}
+	for(int i=0; i<size; ++i) { heap[i] = arr[i]; }
 }
 
 void Heap::heapSort() {
@@ -31,6 +29,12 @@ void Heap::buildHeap() {
 	}
 }
 
+void Heap::buildHeap(int* arr) {
+	--size;
+	for(int i=0; i<size; ++i) { heap[i] = arr[i]; }
+	buildHeap();
+}
+
 void Heap::heapify(int i) {
 	int largest;
 	int left = 2*i + 1;
@@ -48,18 +52,28 @@ void Heap::heapify(int i) {
 	}
 }
 
+int* Heap::popTop() {
+	int tmp = heap[0];
+	heap[0] = heap[size-1];
+	heap[size-1] = tmp;
+	--size;
+	heapSize = size;
+	heapify(0);
+	return heap;
+}
+
 int* Heap::getHeap() {
 	return heap;
 }
 
 ostream& operator<<(ostream& output, const Heap& h) {
-	for(int i=0; i<h.size; ++i) {
+	for(int i=h.size-1; i>=0; --i) {
 		output << h.emails[h.heap[i]];
 	}
 	return output;
 }
 
-/* Please overload me */
+/* Please overload me. Defaults to max heap. */
 bool Heap::compare(int first, int second) const {
 	return first > second;
 }

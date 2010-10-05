@@ -12,6 +12,8 @@ class Heap {
 		void heapSort();
 		void printHeap();
 		void buildHeap();
+		void buildHeap(int* arr);
+		int* popTop();
 		int* getHeap();
 };
 
