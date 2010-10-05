@@ -5,6 +5,18 @@
 
 using namespace std;
 
+bool sortMax(int first, int second) {
+  return first > second;
+}
+
+bool sortMin(int first, int second) {
+  return first < second;
+}
+
+bool sortString(string first, string second) {
+  return first.compare(second);
+}
+
 int main(int argc, const char* argv[]) {
   ifstream input (argv[1]);
   Email* emails;
@@ -61,8 +73,8 @@ int main(int argc, const char* argv[]) {
   
   int* a = new int[count];
   for(int i=0; i<count; ++i) { a[i] = i; }
-  Heap h = Heap(a, count);
-  h.buildHeap();
+  Heap dh = DateHeap(a, count);
+  dh.buildHeap();
   
   delete[] emails;
   return 0;
