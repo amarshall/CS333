@@ -5,7 +5,7 @@ class Heap {
 		int* heap;
 		const Email* emails;
 		void heapify(int i);
-		virtual bool compare(const void* first, const void* second) const;
+		virtual bool compare(int first, int second) const;
 		friend std::ostream& operator<<(std::ostream& output, const Heap& h);
 	public:
 		Heap(int* arr, int s, const Email* e);
@@ -16,28 +16,22 @@ class Heap {
 };
 
 class DateHeap : public Heap {
-	private:
-		bool compare(const int* first, const int* second) const {
-			return emails[*first].timestamp > emails[*second].timestamp;
-		}
+	protected:
+		bool compare(int first, int second) const;
 	public:
-		DateHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {};
+		DateHeap(int* arr, int s, const Email* e);
 };
 
 class SubjectHeap : public Heap {
-	private:
-		bool compare(const int* first, const int* second) const {
-			return emails[*first].subject.compare(emails[*second].subject);
-		}
+	protected:
+		bool compare(int first, int second) const;
 	public:
-		SubjectHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {};
+		SubjectHeap(int* arr, int s, const Email* e);
 };
 
 class LinesHeap : public Heap {
-	private:
-		bool compare(const int* first, const int* second) const {
-			return emails[*first].lineCount < emails[*second].lineCount;
-		}
+	protected:
+		bool compare(int first, int second) const;
 	public:
-		LinesHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {};
+		LinesHeap(int* arr, int s, const Email* e);
 };

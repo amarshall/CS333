@@ -62,17 +62,20 @@ int main(int argc, const char* argv[]) {
 		input.close();
 	}
 	
-	
-	for(int i=0; i<count; ++i) {
-		cout << emails[i];
-	}
-	
 	int* a = new int[count];
 	for(int i=0; i<count; ++i) { a[i] = i; }
-	Heap dh = DateHeap(a, count, emails);
-	dh.buildHeap();
-	//cout << dh;
+	Heap* dh = new DateHeap(a, count, emails);
+	Heap* sh = new SubjectHeap(a, count, emails);
+	Heap* lh = new LinesHeap(a, count, emails);
+	delete a;
+	//dh->buildHeap();
+	//sh->buildHeap();
+	lh->buildHeap();
+	cout << *lh;
 	
+	delete dh;
+	delete sh;
+	delete lh;
 	delete[] emails;
 	return 0;
 }

@@ -35,8 +35,9 @@ void Heap::heapify(int i) {
 	int largest;
 	int left = 2*i + 1;
 	int right = 2*i + 2;
-	largest = (left <= heapSize-1 && this->compare(&left, &i)) ? left : i;
-	if(right <= heapSize-1 && compare(&right, &largest)) {
+	
+	largest = (left <= heapSize-1 && compare(left, i)) ? left : i;
+	if(right <= heapSize-1 && compare(right, largest)) {
 		largest = right;
 	}
 	if(largest != i) {
@@ -51,12 +52,6 @@ int* Heap::getHeap() {
 	return heap;
 }
 
-void Heap::printHeap() {
-	for(int i=0; i<size; ++i) {
-		cout << heap[i] << endl;
-	}
-}
-
 ostream& operator<<(ostream& output, const Heap& h) {
 	for(int i=0; i<h.size; ++i) {
 		output << h.emails[h.heap[i]];
@@ -65,6 +60,27 @@ ostream& operator<<(ostream& output, const Heap& h) {
 }
 
 /* Please overload me */
-bool Heap::compare(const void* first, const void* second) const {
-	return true;
+bool Heap::compare(int first, int second) const {
+	return first > second;
+}
+
+
+DateHeap::DateHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {}
+
+bool DateHeap::compare(int first, int second) const {
+	return emails[heap[first]].timestamp < emails[heap[second]].timestamp;
+}
+
+
+SubjectHeap::SubjectHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {}
+
+bool SubjectHeap::compare(int first, int second) const {
+	return emails[heap[first]].subject.compare(emails[heap[second]].subject) < 0;
+}
+
+
+LinesHeap::LinesHeap(int* arr, int s, const Email* e) : Heap(arr, s, e) {}
+
+bool LinesHeap::compare(int first, int second) const {
+	return emails[heap[first]].lineCount > emails[heap[second]].lineCount;
 }
