@@ -68,10 +68,51 @@ int main(int argc, const char* argv[]) {
 	Heap* sh = new SubjectHeap(a, count, emails);
 	Heap* lh = new LinesHeap(a, count, emails);
 	delete a;
-	//dh->buildHeap();
-	//sh->buildHeap();
+	
+	dh->buildHeap();
+	sh->buildHeap();
 	lh->buildHeap();
-	cout << *lh;
+	
+	string command;
+	string argument;
+	while(1) {
+		cout << "Command please: ";
+		cin >> command;
+		if(command == "quit" || command == "QUIT") {
+			break;
+		}
+		cin >> argument;
+		if(command == "sort") {
+			if(argument == "oldest") {
+				dh->heapSort();
+				cout << *dh;
+			} else if(argument == "alphabetical") {
+				sh->heapSort();
+				cout << *sh;
+			} else if(argument == "longest") {
+				lh->heapSort();
+				cout << *lh;
+			}
+		} else if(command == "extract") {
+			if(argument == "oldest") {
+				cout << emails[dh->getHeap()[0]];
+			} else if(argument == "alphabetical") {
+				cout << emails[sh->getHeap()[0]];
+			} else if(argument == "longest") {
+				cout << emails[lh->getHeap()[0]];
+			}
+		} else if(command == "report") {
+			if(argument == "oldest") {
+				cout << emails[dh->getHeap()[0]];
+			} else if(argument == "alphabetical") {
+				cout << emails[sh->getHeap()[0]];
+			} else if(argument == "longest") {
+				cout << emails[lh->getHeap()[0]];
+		}
+		} else {
+			cout << "**Invalid command**" << endl;
+		}
+	}
 	
 	delete dh;
 	delete sh;
