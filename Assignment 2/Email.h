@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 
 class Email {
 	public:
@@ -9,5 +10,6 @@ class Email {
 		std::string recipient;
 		std::string* body;
 		int lineCount;
+		friend std::ostream& operator<<(std::ostream& output, const Email& e);
 		Email();
 };

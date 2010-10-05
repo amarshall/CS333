@@ -57,6 +57,13 @@ void Heap::printHeap() {
 	}
 }
 
+ostream& operator<<(ostream& output, const Heap& h) {
+	for(int i=0; i<h.size; ++i) {
+		output << h.emails[h.heap[i]];
+	}
+	return output;
+}
+
 /* Please overload me */
 bool Heap::compare(const void* first, const void* second) const {
 	return true;
