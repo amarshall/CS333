@@ -20,7 +20,7 @@ void Heap::heapSort() {
 		heap[0] = heap[i];
 		heap[i] = tmp;
 		--heapSize;
-		heapify(1);
+		heapify(0);
 	}
 }
 
