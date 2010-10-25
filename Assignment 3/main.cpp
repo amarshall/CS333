@@ -26,7 +26,6 @@ inline void op_args_init(op_args_t &op_args, int start, int end, int column) {
 }
 
 vector< vector<char>* > strings;
-long strings_length = 0;
 const int counts_length = 58;
 vector<op_args_t> stack;
 pthread_mutex_t stack_mutex;
@@ -99,7 +98,7 @@ inline void sort() {
 	pthread_mutex_init(&stack_mutex, NULL);
 	pthread_mutex_init(&strings_mutex, NULL);
 	op_args_t main_args;
-	op_args_init(main_args, 0, strings_length - 1, 0);
+	op_args_init(main_args, 0, strings.size() - 1, 0);
 	stack.push_back(main_args);
 	pthread_t thread1, thread2;
 	pthread_create(&thread1, NULL, sort_worker, (void*)0);
@@ -117,7 +116,6 @@ inline void read_input() {
 		} else {
 			s->push_back(0);
 			strings.push_back(s);
-			++strings_length;
 			s = new vector<char>;
 		}
 		c = getchar();
@@ -125,7 +123,7 @@ inline void read_input() {
 }
 
 inline void print_output() {
-	for(int i=0; i < strings_length; ++i) {
+	for(unsigned int i=0; i < strings.size(); ++i) {
 		for(int j=0; (*strings[i])[j] != 0; ++j) {
 			putchar((*strings[i])[j]);
 		}
