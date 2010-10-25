@@ -5,8 +5,8 @@
 using namespace std;
 
 struct op_args_t {
-	int start;
-	int end;
+	long start;
+	long end;
 	int column;
 };
 struct node {
@@ -26,26 +26,30 @@ inline void op_args_init(op_args_t &op_args, int start, int end, int column) {
 }
 
 vector< vector<char>* > strings;
-int strings_length = 0;
-const int counts_length = 127;
+long strings_length = 0;
+const int counts_length = 128;
 vector<op_args_t> stack;
 pthread_mutex_t stack_mutex;
 pthread_mutex_t strings_mutex;
+bool running[2] = { false, false };
 
-void* sort_column(void* args) {
-	op_args_t op_args = *((op_args_t*)args);
-	int start = op_args.start;
-	int end = op_args.end;
+inline void sort_column(op_args_t op_args) {
+	long start = op_args.start;
+	long end = op_args.end;
 	int column = op_args.column;
 	node* counts[counts_length];
-	for(int i=start; i <= end; ++i) {
+	for(int i=0; i < counts_length; ++i) {
+		counts[i] = NULL;
+	}
+	for(long i=start; i <= end; ++i) {
 		int ascii = (*strings[i])[column];
 		if(ascii != 0) {
 			counts[ascii] = add_node(counts[ascii], strings[i]);
 		}
 	}
 	
-	int cur_pos = start;
+	long cur_pos = start;
+	vector<op_args_t> pre_stack;
 	for(int i=0; i < counts_length; ++i) {
 		int runs = 0;
 		node* cur_ptr = counts[i];
@@ -60,9 +64,32 @@ void* sort_column(void* args) {
 		if(runs > 1) {
 			op_args_t op_args;
 			op_args_init(op_args, cur_pos - runs, cur_pos - 1, column + 1);
-			pthread_mutex_lock(&stack_mutex);
-			stack.push_back(op_args);
+			pre_stack.push_back(op_args);
+		}
+	}
+	if(pre_stack.size() > 0) {
+		pthread_mutex_lock(&stack_mutex);
+		while(pre_stack.size() > 0) {
+			stack.push_back(pre_stack.back());
+			pre_stack.pop_back();
+		}
+		pthread_mutex_unlock(&stack_mutex);
+	}
+}
+
+void* sort_worker(void* n) {
+	long num = (long)n;
+	while(stack.size() >= 1 || running[0] || running[1]) {
+		if(stack.size() >= 1 && pthread_mutex_trylock(&stack_mutex) == 0) {
+			//cout << "Thread " << num << " got lock on stack!" << endl;
+			running[num] = true;
+			op_args_t op_args = stack.back();
+			stack.pop_back();
 			pthread_mutex_unlock(&stack_mutex);
+			//cout << "Thread " << num << " starting on " << op_args.start << " | " << op_args.end << " | " << op_args.column << endl;
+			sort_column(op_args);
+			//cout << "Thread " << num << " finished." << endl;
+			running[num] = false;
 		}
 	}
 	pthread_exit(NULL);
@@ -74,22 +101,11 @@ inline void sort() {
 	op_args_t main_args;
 	op_args_init(main_args, 0, strings_length - 1, 0);
 	stack.push_back(main_args);
-	while(stack.size() >= 1) {
-		bool two = stack.size() >= 2;
-		two = false;
-		op_args_t op_args[2];
-		op_args[0] = stack.back();
-		stack.pop_back();
-		if(two) {
-			op_args[1] = stack.back();
-			stack.pop_back();
-		}
-		pthread_t thread1, thread2;
-		pthread_create(&thread1, NULL, sort_column, (void*) &op_args[0]);
-		if(two) pthread_create(&thread1, NULL, sort_column, (void*) &op_args[1]);
-		pthread_join(thread1, NULL);
-		if(two) pthread_join(thread2, NULL);
-	}
+	pthread_t thread1, thread2;
+	pthread_create(&thread1, NULL, sort_worker, (void*)0);
+	pthread_create(&thread2, NULL, sort_worker, (void*)1);
+	pthread_join(thread1, NULL);
+	pthread_join(thread2, NULL);
 }
 
 inline void read_input() {
