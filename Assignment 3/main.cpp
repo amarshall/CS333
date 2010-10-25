@@ -27,13 +27,13 @@ inline void op_args_init(op_args_t &op_args, int start, int end, int column) {
 
 vector< vector<char>* > strings;
 long strings_length = 0;
-const int counts_length = 128;
+const int counts_length = 58;
 vector<op_args_t> stack;
 pthread_mutex_t stack_mutex;
 pthread_mutex_t strings_mutex;
 bool running[2] = { false, false };
 
-inline void sort_column(op_args_t op_args) {
+void sort_column(op_args_t op_args) {
 	long start = op_args.start;
 	long end = op_args.end;
 	int column = op_args.column;
@@ -42,8 +42,8 @@ inline void sort_column(op_args_t op_args) {
 		counts[i] = NULL;
 	}
 	for(long i=start; i <= end; ++i) {
-		int ascii = (*strings[i])[column];
-		if(ascii != 0) {
+		int ascii = (*strings[i])[column] - 65;
+		if(ascii != -65) {
 			counts[ascii] = add_node(counts[ascii], strings[i]);
 		}
 	}
