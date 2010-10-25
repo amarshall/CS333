@@ -4,6 +4,11 @@
 
 using namespace std;
 
+struct op_arg {
+	int start;
+	int end;
+	int column;
+};
 struct node {
 	node* next;
 	vector<char>* string_ptr;
@@ -47,13 +52,14 @@ vector< vector<char>* > strings; // Array holding all the strings
 int strings_length = 0;
 node* counts[127]; // Array holding the temporary counts as a linked list of pointers
 int counts_length = 127; // Change to constant
-node* stack;
+//node* stack;
+vector<op_arg> stack;
 
 void sort_column(int start, int end, int column) {
 	for(int i=0; i < counts_length; ++i) {
 		counts[i] = NULL;
 	}
-	for(int i=start; i < end; ++i) {
+	for(int i=start; i <= end; ++i) {
 		int ascii = (*strings[i])[column];
 		if(ascii != 0) {
 			counts[ascii] = add_node(counts[ascii], strings[i]);
@@ -83,23 +89,22 @@ void sort_column(int start, int end, int column) {
 		}
 		if(runs > 1) {
 			cout << "adding " << cur_pos-runs << " | " << cur_pos - 1 << " | " << column+1 << endl;
-			int op_args[] = { cur_pos - runs, cur_pos - 1, column + 1 };
-			stack = add_node(stack, op_args);
+			op_arg op_args;
+			op_args.start = cur_pos - runs;
+			op_args.end = cur_pos - 1;
+			op_args.column = column + 1;
+			stack.push_back(op_args);
 		}
 	}
 }
 
 void sort() {
-	sort_column(0, strings_length, 0);
-	while(stack != NULL) {
-		int* op_args = stack->op_args;
-		int arg_one = op_args[0];
-		int arg_two = op_args[1];
-		int arg_three = op_args[2];
-		print_stack(stack);
-		cout << "running " << op_args[0] << " | " << op_args[1] << " | " <<  op_args[2] << endl;
-		stack = remove_top(stack);
-		sort_column(arg_one, arg_two, arg_three);
+	sort_column(0, strings_length-1, 0);
+	while(stack.size() > 0) {
+		op_arg op_args = stack.back();
+		cout << "running " << op_args.start << " | " << op_args.end << " | " <<  op_args.column << endl;
+		stack.pop_back();
+		sort_column(op_args.start, op_args.end, op_args.column);
 	}
 }
 
