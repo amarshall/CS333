@@ -4,7 +4,7 @@
 # @author J. Andrew Marshall (jmarsha6)
 #
 
-GXX=g++ -Wall -g
+GXX=g++ -Wall -pthread
 
 all: ssort
 
