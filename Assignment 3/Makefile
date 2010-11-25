@@ -4,9 +4,12 @@
 # @author J. Andrew Marshall (jmarsha6)
 #
 
-GXX=g++ -Wall -pthread
+GXX=g++ -Wall
 
-all: ssort
+all: ssort ssort_contest
+
+ssort_contest: ssort
+	cp ssort ssort_contest
 
 ssort: main.o
 	$(GXX) main.o -o ssort

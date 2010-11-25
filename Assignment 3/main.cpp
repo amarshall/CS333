@@ -1,12 +1,11 @@
 #include <stdio.h>
-#include <pthread.h>
 #include <vector>
 
 using namespace std;
 
 struct op_args_t {
-	long start;
-	long end;
+	int start;
+	int end;
 	int column;
 };
 struct node {
@@ -19,38 +18,25 @@ inline node* add_node(node* top, vector<char>* string_ptr) {
 	new_top->next = top;
 	return new_top;
 }
-inline void op_args_init(op_args_t &op_args, int start, int end, int column) {
-	op_args.start = start;
-	op_args.end = end;
-	op_args.column = column;
-}
 
 vector< vector<char>* > strings;
-const int counts_length = 58;
+const int counts_length = 59;
+node* counts[counts_length];
 vector<op_args_t> stack;
-pthread_mutex_t stack_mutex;
-pthread_mutex_t strings_mutex;
-bool running[2] = { false, false };
 
-void sort_column(op_args_t op_args) {
-	long start = op_args.start;
-	long end = op_args.end;
-	int column = op_args.column;
-	node* counts[counts_length];
-	for(int i=0; i < counts_length; ++i) {
-		counts[i] = NULL;
-	}
-	for(long i=start; i <= end; ++i) {
-		int ascii = (*strings[i])[column] - 65;
-		if(ascii != -65) {
-			counts[ascii] = add_node(counts[ascii], strings[i]);
-		}
+void sort_column(const op_args_t &op_args) {
+	const int start = op_args.start;
+	const int end = op_args.end;
+	const int column = op_args.column;
+	for(int i=start; i <= end; ++i) {
+		int ascii = (*strings[i])[column] - 64;
+		if(ascii < 0) ascii = 0;
+		counts[ascii] = add_node(counts[ascii], strings[i]);
 	}
 	
-	long cur_pos = start;
-	vector<op_args_t> pre_stack;
+	int cur_pos = start;
 	for(int i=0; i < counts_length; ++i) {
-		int runs = 0;
+		const int start_pos = cur_pos;
 		node* cur_ptr = counts[i];
 		while(cur_ptr != NULL) {
 			strings[cur_pos] = cur_ptr->string_ptr;
@@ -58,58 +44,35 @@ void sort_column(op_args_t op_args) {
 			cur_ptr = cur_ptr->next;
 			delete delete_me;
 			++cur_pos;
-			++runs;
 		}
-		if(runs > 1) {
+		if(cur_pos - start_pos > 2 && i != 0) {
 			op_args_t op_args;
-			op_args_init(op_args, cur_pos - runs, cur_pos - 1, column + 1);
-			pre_stack.push_back(op_args);
+			op_args.start = start_pos;
+			op_args.end = cur_pos - 1;
+			op_args.column = column + 1;
+			stack.push_back(op_args);
 		}
+		counts[i] = NULL;
 	}
-	if(pre_stack.size() > 0) {
-		pthread_mutex_lock(&stack_mutex);
-		while(pre_stack.size() > 0) {
-			stack.push_back(pre_stack.back());
-			pre_stack.pop_back();
-		}
-		pthread_mutex_unlock(&stack_mutex);
-	}
-}
-
-void* sort_worker(void* n) {
-	long num = (long)n;
-	while(stack.size() >= 1 || running[0] || running[1]) {
-		if(stack.size() >= 1 && pthread_mutex_trylock(&stack_mutex) == 0) {
-			//cout << "Thread " << num << " got lock on stack!" << endl;
-			running[num] = true;
-			op_args_t op_args = stack.back();
-			stack.pop_back();
-			pthread_mutex_unlock(&stack_mutex);
-			//cout << "Thread " << num << " starting on " << op_args.start << " | " << op_args.end << " | " << op_args.column << endl;
-			sort_column(op_args);
-			//cout << "Thread " << num << " finished." << endl;
-			running[num] = false;
-		}
-	}
-	pthread_exit(NULL);
 }
 
 inline void sort() {
-	pthread_mutex_init(&stack_mutex, NULL);
-	pthread_mutex_init(&strings_mutex, NULL);
 	op_args_t main_args;
-	op_args_init(main_args, 0, strings.size() - 1, 0);
-	stack.push_back(main_args);
-	pthread_t thread1, thread2;
-	pthread_create(&thread1, NULL, sort_worker, (void*)0);
-	pthread_create(&thread2, NULL, sort_worker, (void*)1);
-	pthread_join(thread1, NULL);
-	pthread_join(thread2, NULL);
+	main_args.start = 0;
+	main_args.end = strings.size() - 1;
+	main_args.column = 0;
+	sort_column(main_args);
+	while(stack.size() > 0) {
+		op_args_t op_args = stack.back();
+		stack.pop_back();
+		sort_column(op_args);
+	}
 }
 
 inline void read_input() {
 	char c = getchar();
 	vector<char>* s = new vector<char>;
+	s->reserve(8);
 	while(c != EOF) {
 		if(c != '\n') {
 			s->push_back(c);
@@ -132,7 +95,9 @@ inline void print_output() {
 }
 
 int main() {
+	strings.reserve(64);
 	read_input();
+	stack.reserve(64);
 	sort();
 	print_output();
 	return 0;
