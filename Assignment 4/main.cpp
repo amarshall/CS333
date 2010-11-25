@@ -24,6 +24,18 @@ struct Node {
 	int frequency;
 };
 
+bool compareCharacter(const Huffman one, const Huffman two) {
+	return one.character > two.character;
+}
+
+bool compareFrequency(const Huffman one, const Huffman two) {
+	return one.frequency < two.frequency;
+}
+
+bool compareNode(const Node* one, const Node* two) {
+	return one->frequency < two->frequency;
+}
+
 string getEncodingFromStack(const vector<int> &s) {
 	string encoding = "";
 	int stack_size = s.size();
@@ -33,42 +45,17 @@ string getEncodingFromStack(const vector<int> &s) {
 	return encoding;
 }
 
-void sortByCharacter(vector<Huffman> &characters) {
-	int size = characters.size();
+template <class T, class C>
+void sort(vector<T> &v, bool(*comparator)(const C, const C)) {
+	int size = v.size();
 	for(int i = 0; i < size; ++i) {
-		Huffman current = characters[i];
+		T current = v[i];
 		int j = i - 1;
-		while(j >= 0 && characters[j].character > current.character) {
-			characters[j+1] = characters[j];
+		while(j >= 0 && comparator(v[j], current)) {
+			v[j+1] = v[j];
 			--j;
 		}
-		characters[j+1] = current;
-	}
-}
-
-void sortByFrequency(vector<Huffman> &characters) {
-	int size = characters.size();
-	for(int i = 0; i < size; ++i) {
-		Huffman current = characters[i];
-		int j = i - 1;
-		while(j >= 0 && characters[j].frequency < current.frequency) {
-			characters[j+1] = characters[j];
-			--j;
-		}
-		characters[j+1] = current;
-	}
-}
-
-void sortByFrequency(vector<Node*> &nodes) {
-	int size = nodes.size();
-	for(int i = 0; i < size; ++i) {
-		Node* current = nodes[i];
-		int j = i - 1;
-		while(j >= 0 && nodes[j]->frequency < current->frequency) {
-			nodes[j+1] = nodes[j];
-			--j;
-		}
-		nodes[j+1] = current;
+		v[j+1] = current;
 	}
 }
 
@@ -82,7 +69,7 @@ Node* buildTree(vector<Huffman> &characters) {
 		node->frequency = characters[i].frequency;
 		nodes.push_back(node);
 	}
-	sortByFrequency(nodes);
+	sort(nodes, &compareNode);
 	
 	while(nodes.size() > 1) {
 		Node* top = new Node;
@@ -93,7 +80,7 @@ Node* buildTree(vector<Huffman> &characters) {
 		top->frequency = top->left->frequency + top->right->frequency;
 		nodes.push_back(top);
 		top->data = NULL;
-		sortByFrequency(nodes);
+		sort(nodes, &compareNode);
 	}
 	return nodes[0];
 }
@@ -163,7 +150,7 @@ int main(int argc, char* argv[]) {
 		characters.push_back(h);
 	}
 	
-	sortByFrequency(characters);
+	sort(characters, &compareFrequency);
 	Node* huffman_tree = buildTree(characters);
 	generateEncoding(huffman_tree);
 	
@@ -171,7 +158,7 @@ int main(int argc, char* argv[]) {
 	if(flag == 'f') {
 		printCharacters(characters, character_count);
 	} else if(flag == 'a') {
-		sortByCharacter(characters);
+		sort(characters, &compareCharacter);
 		printCharacters(characters, character_count);
 	} else {
 		cout << "Bad argument. Just did a whole lot of work for nothing." << endl;
