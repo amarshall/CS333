@@ -24,6 +24,12 @@ struct Node {
 	int frequency;
 };
 
+struct Word {
+	string word;
+	int value;
+	int weight;
+};
+
 bool compareCharacter(const Huffman one, const Huffman two) {
 	return one.character > two.character;
 }
@@ -86,25 +92,26 @@ Node* buildTree(vector<Huffman> &characters) {
 }
 
 // Please don't call directly
-void _generateEncoding(Node* node, vector<int> &encoding_stack) {
+void _generateEncoding(Node* node, vector<int> &encoding_stack, int* weights) {
 	if(node->data != NULL) {
 		node->data->encoding = getEncodingFromStack(encoding_stack);
+		weights[node->data->character - 97] = node->data->encoding.length();
 	}
 	if(node->left != NULL) {
 		encoding_stack.push_back('0');
-		_generateEncoding(node->left, encoding_stack);
+		_generateEncoding(node->left, encoding_stack, weights);
 		encoding_stack.pop_back();
 	}
 	if(node->right != NULL) {
 		encoding_stack.push_back('1');
-		_generateEncoding(node->right, encoding_stack);
+		_generateEncoding(node->right, encoding_stack, weights);
 		encoding_stack.pop_back();
 	}
 }
 
-void generateEncoding(Node* node) {
+void generateEncoding(Node* node, int* weights) {
 	vector<int> s;
-	_generateEncoding(node, s);
+	_generateEncoding(node, s, weights);
 }
 
 void printCharacters(const vector<Huffman> &characters, int character_count) {
@@ -116,6 +123,32 @@ void printCharacters(const vector<Huffman> &characters, int character_count) {
 	}
 }
 
+int knapsack(const vector<Word> &words, int character_count, int size, int largest) {
+	int solutionsSize = size + largest;
+	int* solutions = new int[solutionsSize];
+	for(int i = 0; i < solutionsSize; ++i) solutions[i] = 0;
+	for(int i = 0; i < size; ++i) {
+		if(i == 0 || solutions[i] > 0) {
+			for(unsigned int j = 0; j < words.size(); ++j) {
+				int weight = words[j].weight;
+				int value = words[j].value;
+				if(solutions[i + weight] == 0 || solutions[i + weight] < solutions[i] + value) {
+					solutions[i + weight] = solutions[i] + value;
+				}
+			}
+		}
+	}
+	
+	int finalCost = solutions[size];
+	for(int i = size + 1; i < solutionsSize; ++i) {
+		if((finalCost == 0 || solutions[i] > finalCost) && solutions[i] != 0) {
+			finalCost = solutions[i];
+		}
+	}
+	
+	return finalCost;
+}
+
 int main(int argc, char* argv[]) {
 	int character_count = 0;
 	const int CHARACTER_ARRAY_SIZE = 26;
@@ -123,21 +156,26 @@ int main(int argc, char* argv[]) {
 	for(int i = 0; i < CHARACTER_ARRAY_SIZE; ++i) {
 		character_frequencies[i] = 0;
 	}
-	//vector<string*> words; // To be used in part two
+	vector<Word> words; // To be used in part two
 	
 	// Read input
 	char current_char;
-	//int current_word_count = 0;
-	//string current_word = "";
+	string current_word = "";
+	int current_word_value = 0;
 	while((current_char = getchar()) != EOF) {
 		if(current_char != '\n') {
 			int character_index = current_char - 97;
-			//word += current_char;
+			current_word += current_char;
+			current_word_value += current_char - 96;
 			++character_frequencies[character_index];
 			++character_count;
 		} else {
-			//words.push_back(current_word);
-			//current_word = "";
+			Word w;
+			w.word = current_word;
+			w.weight = 0;
+			words.push_back(w);
+			current_word = "";
+			current_word_value = 0;
 		}
 	}
 	
@@ -152,7 +190,8 @@ int main(int argc, char* argv[]) {
 	
 	sort(characters, &compareFrequency);
 	Node* huffman_tree = buildTree(characters);
-	generateEncoding(huffman_tree);
+	int characterWeights[26];
+	generateEncoding(huffman_tree, characterWeights);
 	
 	char flag = *(argv[1] + 1);
 	if(flag == 'f') {
