@@ -1,5 +1,5 @@
 /**
- * CS333 Assignment #4
+ * CS333 Assignment #4 & 5
  * main.cpp
  * @author J. Andrew Marshall (jmarsha6)
  */
@@ -26,6 +26,7 @@ struct Node {
 
 struct Word {
 	string word;
+	string encoding;
 	int value;
 	int weight;
 };
@@ -40,6 +41,10 @@ bool compareFrequency(const Huffman one, const Huffman two) {
 
 bool compareNode(const Node* one, const Node* two) {
 	return one->frequency < two->frequency;
+}
+
+bool compareRatio(const Word one, const Word two) {
+	return ((double)one.value / one.weight) < ((double)two.value / two.weight);
 }
 
 string getEncodingFromStack(const vector<int> &s) {
@@ -114,18 +119,18 @@ void generateEncoding(Node* node, int* weights) {
 	_generateEncoding(node, s, weights);
 }
 
-int generateWordWeights(vector<Word> &words, const vector<Huffman> &characters) {
-	int largest = 0;
+void generateWordWeights(vector<Word> &words, const vector<Huffman> &characters) {
 	for(unsigned int i = 0; i < words.size(); ++i) {
 		int weight = 0;
+		string encoding = "";
 		string word = words[i].word;
 		for(unsigned int j = 0; j < word.length(); ++j) {
 			weight += characters[word[j] - 97].encoding.length();
+			encoding += characters[word[j] - 97].encoding;
 		}
-		if(weight > largest) largest = weight;
 		words[i].weight = weight;
+		words[i].encoding = encoding;
 	}
-	return largest;
 }
 
 void printCharacters(const vector<Huffman> &characters, int character_count) {
@@ -145,43 +150,52 @@ void printWords(const vector<Word> &words) {
 	}
 }
 
-void knapsack(const vector<Word> &words, int size, int largest, int &finalCost, int &finalSize) {
-	int solutionsSize = size + largest;
-	int* solutions = new int[solutionsSize];
-	vector<int>* usedWords = new vector<int>[solutionsSize];
-	for(int i = 0; i < solutionsSize; ++i) solutions[i] = 0;
-	for(int i = 0; i < size; ++i) {
+double fractional(vector<Word> &words, const int size, string &knapsack) {
+	sort(words, &compareRatio);
+	int actualSize = 0;
+	double finalCost = 0;
+	int lastWordUsed;
+	
+	for(lastWordUsed = 0; actualSize < size; ++lastWordUsed) {
+		const Word currentWord = words[lastWordUsed];
+		if(actualSize + currentWord.weight <= size) {
+			actualSize += currentWord.weight;
+			finalCost += currentWord.value;
+			knapsack += currentWord.encoding;
+		} else {
+			const double fraction = (double)(size - actualSize) / currentWord.weight;
+			actualSize = size;
+			finalCost += currentWord.value * fraction;
+			knapsack += currentWord.encoding.substr(0, currentWord.word.length() * fraction);
+		}
+	}
+	
+	return finalCost;
+}
+
+int knapsack(const vector<Word> &words, const int size) {
+	int** solutions = new int*[words.size()];
+	for(int i = 0; (unsigned int)i < words.size(); ++i) {
+		solutions[i] = new int[size];
+		for(int j = 0; j < size; ++j) solutions[i][j] = 0;
+	}
+	for(int i = 1; (unsigned int)i < words.size(); ++i) {
 		if(i == 0 || solutions[i] > 0) {
-			for(unsigned int j = 0; j < words.size(); ++j) {
-				/*
-				bool nope = false;
-				for(unsigned int k = 0; k < usedWords[i].size(); ++k) {
-					if(usedWords[i][k] == (signed int)j) {
-						nope = true;
-						break;
-					}
-				}
-				if(nope) continue;
-				*/
-				int weight = words[j].weight;
-				int value = words[j].value;
-				if(solutions[i + weight] == 0 || solutions[i + weight] < solutions[i] + value) {
-					solutions[i + weight] = solutions[i] + value;
-					//usedWords[i + weight] = usedWords[i];
-					//usedWords[i + weight].push_back(j);
+			for(int j = 0; j <= size; ++j) {
+				int weight = words[i].weight;
+				int value = words[i].value;
+				if(weight > j) {
+					solutions[i][j] = solutions[i-1][j];
+				} else if(solutions[i-1][j-weight] + value > solutions[i-1][j]){
+					solutions[i][j] = value + solutions[i-1][j-weight];
+				} else {
+					solutions[i][j] = solutions[i-1][j];
 				}
 			}
 		}
 	}
 	
-	finalCost = solutions[size];
-	finalSize = 0;
-	for(int i = 0; i <= size; ++i) {
-		if((finalCost == 0 || solutions[i] > finalCost) && solutions[i] != 0) {
-			finalCost = solutions[i];
-			finalSize = i;
-		}
-	}
+	return solutions[words.size()-1][size];
 }
 
 int main(int argc, char* argv[]) {
@@ -229,9 +243,11 @@ int main(int argc, char* argv[]) {
 	int characterWeights[26];
 	generateEncoding(huffman_tree, characterWeights);
 	sort(characters, &compareCharacter);
-	int largestWeight = generateWordWeights(words, characters);
+	generateWordWeights(words, characters);
 	
-	char flag = *(argv[1] + 1);
+	const char flag = *(argv[1] + 1);
+	const int knapsackSize = atoi(argv[2]);
+	const string outputFile = argv[3];
 	if(flag == 'f') {
 		sort(characters, &compareFrequency);
 		printCharacters(characters, character_count);
@@ -239,11 +255,13 @@ int main(int argc, char* argv[]) {
 	} else if(flag == 'a') {
 		sort(characters, &compareCharacter);
 		printCharacters(characters, character_count);
-		printWords(words);
-		int finalCost;
-		int finalSize;
-		knapsack(words, 700, largestWeight, finalCost, finalSize);
-		cout << "Knapsack is cost " << finalCost << " with size " << finalSize << endl;
+	} else if(flag == 'd') {
+		double finalCost = knapsack(words, knapsackSize);
+		cout << finalCost << endl;
+	} else if(flag == 'g') {
+		string knapsack;
+		double finalCost = fractional(words, knapsackSize, knapsack);
+		cout << finalCost << endl;
 	} else {
 		cout << "Bad argument. Just did a whole lot of work for nothing." << endl;
 	}
