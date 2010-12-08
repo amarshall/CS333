@@ -47,15 +47,6 @@ bool compareRatio(const Word one, const Word two) {
 	return ((double)one.value / one.weight) < ((double)two.value / two.weight);
 }
 
-string getEncodingFromStack(const vector<int> &s) {
-	string encoding = "";
-	int stack_size = s.size();
-	for(int i = 0; i < stack_size; ++i) {
-		encoding += s[i];
-	}
-	return encoding;
-}
-
 template <class T, class C>
 void sort(vector<T> &v, bool(*comparator)(const C, const C)) {
 	int size = v.size();
@@ -67,6 +58,52 @@ void sort(vector<T> &v, bool(*comparator)(const C, const C)) {
 			--j;
 		}
 		v[j+1] = current;
+	}
+}
+
+string getEncodingFromStack(const vector<int> &s) {
+	string encoding = "";
+	int stack_size = s.size();
+	for(int i = 0; i < stack_size; ++i) {
+		encoding += s[i];
+	}
+	return encoding;
+}
+
+// Please don't call directly
+void _generateEncoding(Node* node, vector<int> &encoding_stack, int* weights) {
+	if(node->data != NULL) {
+		node->data->encoding = getEncodingFromStack(encoding_stack);
+		weights[node->data->character - 97] = node->data->encoding.length();
+	}
+	if(node->left != NULL) {
+		encoding_stack.push_back('0');
+		_generateEncoding(node->left, encoding_stack, weights);
+		encoding_stack.pop_back();
+	}
+	if(node->right != NULL) {
+		encoding_stack.push_back('1');
+		_generateEncoding(node->right, encoding_stack, weights);
+		encoding_stack.pop_back();
+	}
+}
+
+void generateEncoding(Node* node, int* weights) {
+	vector<int> s;
+	_generateEncoding(node, s, weights);
+}
+
+void populateWords(vector<Word> &words, const vector<Huffman> &characters) {
+	for(unsigned int i = 0; i < words.size(); ++i) {
+		int weight = 0;
+		string encoding = "";
+		string word = words[i].word;
+		for(unsigned int j = 0; j < word.length(); ++j) {
+			weight += characters[word[j] - 97].encoding.length();
+			encoding += characters[word[j] - 97].encoding;
+		}
+		words[i].weight = weight;
+		words[i].encoding = encoding;
 	}
 }
 
@@ -94,43 +131,6 @@ Node* buildTree(vector<Huffman> &characters) {
 		sort(nodes, &compareNode);
 	}
 	return nodes[0];
-}
-
-// Please don't call directly
-void _generateEncoding(Node* node, vector<int> &encoding_stack, int* weights) {
-	if(node->data != NULL) {
-		node->data->encoding = getEncodingFromStack(encoding_stack);
-		weights[node->data->character - 97] = node->data->encoding.length();
-	}
-	if(node->left != NULL) {
-		encoding_stack.push_back('0');
-		_generateEncoding(node->left, encoding_stack, weights);
-		encoding_stack.pop_back();
-	}
-	if(node->right != NULL) {
-		encoding_stack.push_back('1');
-		_generateEncoding(node->right, encoding_stack, weights);
-		encoding_stack.pop_back();
-	}
-}
-
-void generateEncoding(Node* node, int* weights) {
-	vector<int> s;
-	_generateEncoding(node, s, weights);
-}
-
-void generateWordWeights(vector<Word> &words, const vector<Huffman> &characters) {
-	for(unsigned int i = 0; i < words.size(); ++i) {
-		int weight = 0;
-		string encoding = "";
-		string word = words[i].word;
-		for(unsigned int j = 0; j < word.length(); ++j) {
-			weight += characters[word[j] - 97].encoding.length();
-			encoding += characters[word[j] - 97].encoding;
-		}
-		words[i].weight = weight;
-		words[i].encoding = encoding;
-	}
 }
 
 void printCharacters(const vector<Huffman> &characters, int character_count) {
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 	int characterWeights[26];
 	generateEncoding(huffman_tree, characterWeights);
 	sort(characters, &compareCharacter);
-	generateWordWeights(words, characters);
+	populateWords(words, characters);
 	
 	const char flag = *(argv[1] + 1);
 	const int knapsackSize = atoi(argv[2]);
