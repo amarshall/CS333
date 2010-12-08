@@ -1,6 +1,6 @@
 ##
 # Makefile
-# CS333 Assignment #4
+# CS333 Assignment #4 & 5
 # @author J. Andrew Marshall (jmarsha6)
 #
 
