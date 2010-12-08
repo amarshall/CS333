@@ -158,7 +158,7 @@ double fractional(vector<Word> &words, const int size, string &binaryKnapsack) {
 	double finalCost = 0;
 	int lastWordUsed;
 	
-	for(lastWordUsed = 0; actualSize < size; ++lastWordUsed) {
+	for(lastWordUsed = 0; actualSize < size && lastWordUsed < words.size(); ++lastWordUsed) {
 		const Word currentWord = words[lastWordUsed];
 		if(actualSize + currentWord.weight <= size) {
 			actualSize += currentWord.weight;
@@ -166,9 +166,9 @@ double fractional(vector<Word> &words, const int size, string &binaryKnapsack) {
 			binaryKnapsack += currentWord.encoding + '\n';
 		} else {
 			const double fraction = (double)(size - actualSize) / currentWord.weight;
-			actualSize = size;
 			finalCost += currentWord.value * fraction;
 			binaryKnapsack += currentWord.encoding.substr(0, currentWord.word.length() * fraction) + '\n';
+			break;
 		}
 	}
 	
