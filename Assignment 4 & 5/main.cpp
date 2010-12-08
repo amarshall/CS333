@@ -5,6 +5,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -150,7 +151,8 @@ void printWords(const vector<Word> &words) {
 	}
 }
 
-double fractional(vector<Word> &words, const int size, string &knapsack) {
+double fractional(vector<Word> &words, const int size, string &binaryKnapsack) {
+	cout.flush();
 	sort(words, &compareRatio);
 	int actualSize = 0;
 	double finalCost = 0;
@@ -161,44 +163,48 @@ double fractional(vector<Word> &words, const int size, string &knapsack) {
 		if(actualSize + currentWord.weight <= size) {
 			actualSize += currentWord.weight;
 			finalCost += currentWord.value;
-			knapsack += currentWord.encoding;
+			binaryKnapsack += currentWord.encoding + '\n';
 		} else {
 			const double fraction = (double)(size - actualSize) / currentWord.weight;
 			actualSize = size;
 			finalCost += currentWord.value * fraction;
-			knapsack += currentWord.encoding.substr(0, currentWord.word.length() * fraction);
+			binaryKnapsack += currentWord.encoding.substr(0, currentWord.word.length() * fraction) + '\n';
 		}
 	}
 	
 	return finalCost;
 }
 
-int knapsack(const vector<Word> &words, const int size) {
+int knapsack(const vector<Word> &words, const int size, string &binaryKnapsack) {
 	int** solutions = new int*[words.size()];
 	for(int i = 0; (unsigned int)i < words.size(); ++i) {
 		solutions[i] = new int[size];
 		for(int j = 0; j < size; ++j) solutions[i][j] = 0;
 	}
-	for(int i = 1; (unsigned int)i < words.size(); ++i) {
-		if(i == 0 || solutions[i] > 0) {
-			for(int j = 0; j <= size; ++j) {
-				int weight = words[i].weight;
-				int value = words[i].value;
-				if(weight > j) {
-					solutions[i][j] = solutions[i-1][j];
-				} else if(solutions[i-1][j-weight] + value > solutions[i-1][j]){
-					solutions[i][j] = value + solutions[i-1][j-weight];
-				} else {
-					solutions[i][j] = solutions[i-1][j];
-				}
+	for(int i = 1; (unsigned int)i < words.size(); ++i) {	
+		const int weight = words[i].weight;
+		const int value = words[i].value;
+		for(int j = 0; j <= size; ++j) {
+			if(solutions[i-1][j - weight] + value > solutions[i-1][j] && weight <= j){
+				solutions[i][j] = solutions[i-1][j-weight] + value;
+			} else {
+				solutions[i][j] = solutions[i-1][j];
 			}
 		}
 	}
 	
-	return solutions[words.size()-1][size];
+	int j = size - 1;
+	for(int i = words.size() - 1; i > 0 && j >= 0; --i) {
+		if(solutions[i][j] != solutions[i-1][j]) {
+			binaryKnapsack += words[i].encoding + '\n';
+			j -= words[i].weight;
+		}
+	}
+	
+	return solutions[words.size()-1][size-1];
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, const char* argv[]) {
 	int character_count = 0;
 	const int CHARACTER_ARRAY_SIZE = 26;
 	int character_frequencies[CHARACTER_ARRAY_SIZE];
@@ -251,16 +257,24 @@ int main(int argc, char* argv[]) {
 	if(flag == 'f') {
 		sort(characters, &compareFrequency);
 		printCharacters(characters, character_count);
-		printWords(words);
 	} else if(flag == 'a') {
 		sort(characters, &compareCharacter);
 		printCharacters(characters, character_count);
 	} else if(flag == 'd') {
-		double finalCost = knapsack(words, knapsackSize);
+		string binaryKnapsack = "";
+		double finalCost = knapsack(words, knapsackSize, binaryKnapsack);
+		ofstream output;
+		output.open(outputFile.data());
+		output << binaryKnapsack;
+		output.close();
 		cout << finalCost << endl;
 	} else if(flag == 'g') {
-		string knapsack;
-		double finalCost = fractional(words, knapsackSize, knapsack);
+		string binaryKnapsack = "";
+		double finalCost = fractional(words, knapsackSize, binaryKnapsack);
+		ofstream output;
+		output.open(outputFile.data());
+		output << binaryKnapsack;
+		output.close();
 		cout << finalCost << endl;
 	} else {
 		cout << "Bad argument. Just did a whole lot of work for nothing." << endl;
