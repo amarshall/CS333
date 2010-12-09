@@ -186,7 +186,7 @@ int knapsack(const vector<Word> &words, const int size, string &binaryKnapsack) 
 		const int weight = words[i].weight;
 		const int value = words[i].value;
 		for(int j = 0; j <= size; ++j) {
-			if(solutions[i-1][j - weight] + value > solutions[i-1][j] && weight <= j){
+			if(weight <= j && solutions[i-1][j - weight] + value > solutions[i-1][j]){
 				solutions[i][j] = solutions[i-1][j-weight] + value;
 			} else {
 				solutions[i][j] = solutions[i-1][j];
