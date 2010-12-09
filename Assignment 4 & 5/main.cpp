@@ -182,6 +182,9 @@ int knapsack(const vector<Word> &words, const int size, string &binaryKnapsack) 
 		solutions[i] = new int[size];
 		for(int j = 0; j < size; ++j) solutions[i][j] = 0;
 	}
+	for(int j = 0; j < size; ++j) {
+		if(j >= words[0].weight) solutions[0][j] = words[0].value;
+	}
 	for(int i = 1; (unsigned int)i < words.size(); ++i) {	
 		const int weight = words[i].weight;
 		const int value = words[i].value;
