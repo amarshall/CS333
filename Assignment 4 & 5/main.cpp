@@ -4,6 +4,7 @@
  * @author J. Andrew Marshall (jmarsha6)
  */
 
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -275,7 +276,7 @@ int main(const int argc, const char* argv[]) {
 		output.open(outputFile.data());
 		output << binaryKnapsack;
 		output.close();
-		cout << finalCost << endl;
+		cout << setprecision(2) << fixed << finalCost << endl;
 	} else {
 		cout << "Bad argument. Just did a whole lot of work for nothing." << endl;
 	}
