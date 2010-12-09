@@ -167,6 +167,7 @@ double fractional(vector<Word> &words, const int size, string &binaryKnapsack) {
 			binaryKnapsack += currentWord.encoding + '\n';
 		} else {
 			const double fraction = (double)(size - actualSize) / currentWord.weight;
+			actualSize += currentWord.weight * fraction;
 			finalCost += currentWord.value * fraction;
 			binaryKnapsack += currentWord.encoding.substr(0, currentWord.word.length() * fraction) + '\n';
 			break;
