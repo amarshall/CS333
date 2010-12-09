@@ -209,6 +209,7 @@ int knapsack(const vector<Word> &words, const int size, string &binaryKnapsack) 
 			j -= words[i].weight;
 		}
 	}
+	if(solutions[0][j] != 0) binaryKnapsack += words[0].encoding + '\n';
 	
 	return solutions[words.size()-1][size-1];
 }
