@@ -156,7 +156,7 @@ double fractional(vector<Word> &words, const int size, string &binaryKnapsack) {
 	sort(words, &compareRatio);
 	int actualSize = 0;
 	double finalCost = 0;
-	int lastWordUsed;
+	unsigned int lastWordUsed;
 	
 	for(lastWordUsed = 0; actualSize < size && lastWordUsed < words.size(); ++lastWordUsed) {
 		const Word currentWord = words[lastWordUsed];
