@@ -5,3 +5,5 @@ core
 risort
 llmergesort
 multi_heap
+ssort
+huffman
